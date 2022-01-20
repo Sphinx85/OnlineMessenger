@@ -6,10 +6,15 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class ClientHandler {
+    private String nickName;
     private Server server;
     private Socket socket;
     private DataInputStream inputStream;
     private DataOutputStream outputStream;
+
+    public String getNickName() {
+        return nickName;
+    }
 
     public ClientHandler(Server server, Socket socket) {
         try {
@@ -22,12 +27,32 @@ public class ClientHandler {
                 try {
                     while (true){
                         String message = inputStream.readUTF();
+                        if (message.startsWith("/auth ")){
+                            String [] tokens = message.split("\\s");
+                            String nick = server.getAuthService().getNickName(tokens[1],tokens[2]);
+                            if (nick != null || !server.nickIsBusy(nick)){
+                                sendMessage("/autok ");
+                                nickName = nick;
+                                server.subscribe(this);
+                                server.consoleMessage("Клиент " + nickName + " авторизовался");
+                                break;
+                            }
+                        }
+                        if (message.startsWith("/register ")){
+                            String [] tokens = message.split("\\s");
+                            server.getAuthService().registration(tokens[1], tokens[2],tokens[3]);
+                            server.consoleMessage("Новый клиент " + tokens[1] + " зарегистрировался");
+                        }
+                    }
+
+                    while (true){
+                        String message = inputStream.readUTF();
                         if (message.equals("/end")){
                             break;
                         }
-                        server.consoleMessage("Клиент отправил сообщение: " + message);
-                        server.broadcastMessage(message);
+                        server.broadcastMessage(nickName + ": " + message);
                     }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
