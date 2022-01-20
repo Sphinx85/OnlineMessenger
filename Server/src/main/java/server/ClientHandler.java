@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class ClientHandler {
-    private Controller server;
+    private Server server;
     private Socket socket;
     private DataInputStream inputStream;
     private DataOutputStream outputStream;
 
-    public ClientHandler(Controller server, Socket socket) {
+    public ClientHandler(Server server, Socket socket) {
         try {
             this.server = server;
             this.socket = socket;
@@ -37,7 +37,6 @@ public class ClientHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public void sendMessage(String message){

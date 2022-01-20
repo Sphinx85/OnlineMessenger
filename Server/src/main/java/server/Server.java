@@ -1,4 +1,3 @@
-/*
 package server;
 
 import java.io.IOException;
@@ -9,13 +8,23 @@ import java.util.Vector;
 
 public class Server {
 
-    //private Vector<ClientHandler> clients;
+    public static Callback consoleMessage;
 
+    static {
+        consoleMessage = args -> { };
+    }
+
+    public static void setConsoleMessage(Callback consoleMessage) {
+        Server.consoleMessage = consoleMessage;
+    }
+
+    private Vector<ClientHandler> clients;
 
     public Server() {
         clients = new Vector<>();
         try(ServerSocket serverSocket = new ServerSocket(8189)) {
             System.out.println("Сервер запущен на порту 8189");
+            consoleMessage("Сервер включен на порту 8189");
             while (true){
                 Socket socket = serverSocket.accept();
                 subscribe(new ClientHandler(this,socket));
@@ -24,8 +33,6 @@ public class Server {
             e.printStackTrace();
         }
     }
-
-
 
     private void subscribe(ClientHandler clientHandler) {
         clients.add(clientHandler);
@@ -40,5 +47,8 @@ public class Server {
     public void unsubscribe(ClientHandler clientHandler) {
         clients.remove(clientHandler);
     }
+
+    public void consoleMessage(String message) {
+        consoleMessage.callback(message);
+    }
 }
-*/
