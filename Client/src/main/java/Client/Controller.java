@@ -41,7 +41,7 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
-            socket = new Socket("10.100.12.45",8189);
+            socket = new Socket("localhost",8189);
             dataInputStream = new DataInputStream(socket.getInputStream());
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
