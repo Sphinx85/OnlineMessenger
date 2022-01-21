@@ -30,19 +30,28 @@ public class ClientHandler {
                         if (message.startsWith("/auth ")){
                             String [] tokens = message.split("\\s");
                             String nick = server.getAuthService().getNickName(tokens[1],tokens[2]);
-                            if (nick != null || !server.nickIsBusy(nick)){
-                                sendMessage("/autok ");
+
+                            if (nick != null && !server.nickIsBusy(nick)){
                                 nickName = nick;
                                 server.subscribe(this);
                                 server.consoleMessage("Клиент " + nickName + " авторизовался");
                                 break;
-                            }
+                            } else sendMessage("Данное имя занято, либо не зарегистрировано");
                         }
                         if (message.startsWith("/register ")){
                             String [] tokens = message.split("\\s");
-                            server.getAuthService().registration(tokens[1], tokens[2],tokens[3]);
-                            server.consoleMessage("Новый клиент " + tokens[1] + " зарегистрировался");
+                            if (!server.nickIsBusy(tokens[1])){
+                                server.getAuthService().registration(tokens[1], tokens[2],tokens[3]);
+                                server.consoleMessage("Новый клиент " + tokens[1] + " зарегистрировался");
+                            } else {
+                                try {
+                                    outputStream.writeUTF("Данное имя пользователя занято");
+                                } catch (IOException o){
+                                    o.printStackTrace();
+                                }
+                            }
                         }
+
                     }
 
                     while (true){
@@ -73,7 +82,7 @@ public class ClientHandler {
     }
 
     private void disconnect() {
-
+        server.consoleMessage("Клиент " + nickName + " отключился от сервера");
         server.unsubscribe(this);
 
         try {

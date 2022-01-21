@@ -18,8 +18,8 @@ public class Server {
         Server.consoleMessage = consoleMessage;
     }
 
-    private Vector<ClientHandler> clients;
-    private AuthService authService;
+    private final Vector<ClientHandler> clients;
+    private final AuthService authService;
 
 
 
@@ -42,6 +42,8 @@ public class Server {
             }
         } catch (IOException e){
             e.printStackTrace();
+        } finally {
+            consoleMessage("Сервер завершил работу");
         }
     }
 

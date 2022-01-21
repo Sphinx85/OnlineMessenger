@@ -7,9 +7,7 @@ public class AuthentificationService implements AuthService{
 
     private List<UserData> users;
 
-    public void setUsers(List users) {
-        this.users = users;
-    }
+
 
     public AuthentificationService() {
         this.users = new ArrayList<>();
@@ -27,6 +25,7 @@ public class AuthentificationService implements AuthService{
     }
 
     public void registration(String nickName, String login, String password) {
+
         users.add(new UserData(nickName,login,password));
 
     }
