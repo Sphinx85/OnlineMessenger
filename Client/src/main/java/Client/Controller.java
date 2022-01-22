@@ -3,8 +3,11 @@ package Client;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -19,70 +22,94 @@ public class Controller implements Initializable {
     TextArea textArea;
 
     @FXML
-    TextField textField;
+    TextField messageField,
+            serverAddress,
+            serverPort,
+            nickNameField,
+            loginField,
+            authLoginField;
 
     @FXML
-    Button sendButton;
+    Button sendButton,
+            connectButton,
+            registerButton,
+            authButton;
 
-    private Socket socket;
-    private DataInputStream dataInputStream;
-    private DataOutputStream dataOutputStream;
+    @FXML
+    PasswordField passwordField,
+            authPasswordField;
+
+    @FXML
+    VBox connectionPanel,
+            authPanel;
+
+    @FXML
+    HBox messagePanel;
+
+    private boolean connected;
+    private boolean authentificated;
+
+    public void setConnected (Boolean connected){
+        this.connected = connected;
+        messagePanel.setVisible(false);
+        messagePanel.setManaged(false);
+        connectionPanel.setVisible(!connected);
+        connectionPanel.setManaged(!connected);
+        authPanel.setVisible(false);
+        authPanel.setManaged(false);
+    }
+
+    public void setAuthentificated(Boolean authentificated){
+        this.authentificated = authentificated;
+        messagePanel.setVisible(authentificated);
+        messagePanel.setManaged(authentificated);
+        connectionPanel.setVisible(false);
+        connectionPanel.setManaged(false);
+        authPanel.setVisible(!authentificated);
+        authPanel.setManaged(!authentificated);
+    }
 
     public void sendMessage() {
-        try {
-            dataOutputStream.writeUTF(textField.getText());
-            textField.clear();
-            textField.requestFocus();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (Network.sendMessage(messageField.getText())){
+            messageField.clear();
+            messageField.requestFocus();
         }
+    }
+
+    public void connect(){
+        Network.connect(serverAddress.getText(), serverPort.getText());
+        setAuthentificated(false);
+        serverAddress.clear();
+        serverPort.clear();
+    }
+
+    public void registration(){
+        Network.registration(nickNameField.getText(), loginField.getText(), passwordField.getText());
+        nickNameField.clear();
+        loginField.clear();
+        passwordField.clear();
+        nickNameField.requestFocus();
+    }
+
+    public void authorization(){
+        Network.authorization(authLoginField.getText(),authPasswordField.getText());
+        authLoginField.clear();
+        authPasswordField.clear();
+        messageField.requestFocus();
+    }
+
+    private void callbacksLinks(){
+        Network.setAuthorizationCallback(args -> setAuthentificated(true));
+        Network.setConnectionCallback(args -> setConnected(true));
+        Network.setSendMessageCallback(args -> {
+            String message = args[0].toString();
+            textArea.appendText(message + "\n");
+        });
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        try {
-            socket = new Socket("localhost",8189);
-            dataInputStream = new DataInputStream(socket.getInputStream());
-            dataOutputStream = new DataOutputStream(socket.getOutputStream());
-
-            Thread thread = new Thread(() -> {
-               try {
-                   while (true){
-                       String message = dataInputStream.readUTF();
-                       textArea.appendText(message + "\n");
-                   }
-               } catch (IOException e) {
-                   e.printStackTrace();
-               } finally {
-                   closeConnection();
-               }
-            });
-            thread.setDaemon(true);
-            thread.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void closeWindow() {
-
-    }
-
-    private void closeConnection() {
-        try {
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            dataInputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            dataOutputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        setConnected(false);
+        callbacksLinks();
     }
 }
