@@ -9,6 +9,7 @@
            <TextField fx:id="serverAddress" promptText="Адрес сервера" HBox.hgrow="ALWAYS" />
            <TextField fx:id="serverPort" promptText="Порт" HBox.hgrow="ALWAYS" maxWidth="70" onAction="#connect"/>
            <Button fx:id="connectButton" text="Подключиться" HBox.hgrow="ALWAYS" onAction="#connect"/>
+           <Button fx:id="connectButtonTest" text="Локальный" HBox.hgrow="ALWAYS" onAction="#locCon"/>
        </HBox>
    </VBox>
     <VBox fx:id="authPanel" VBox.vgrow="ALWAYS">
@@ -24,9 +25,13 @@
             <TextField fx:id="authLoginField" promptText="Логин" HBox.hgrow="ALWAYS"/>
             <PasswordField fx:id="authPasswordField" promptText="Пароль" HBox.hgrow="ALWAYS" onAction="#authorization"/>
             <Button fx:id="authButton" text="Войти" HBox.hgrow="ALWAYS" onAction="#authorization"/>
+            <Button fx:id="authButtonTest" text="Админ" HBox.hgrow="ALWAYS" onAction="#authorizationTest"/>
         </HBox>
     </VBox>
-    <TextArea fx:id="textArea" editable="false" VBox.vgrow="ALWAYS" />
+    <HBox VBox.vgrow="ALWAYS">
+        <TextArea fx:id="textArea" editable="false" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS"/>
+        <TextArea fx:id="clientList" editable="false" VBox.vgrow="ALWAYS" maxWidth="200" minWidth="200"/>
+    </HBox>
     <HBox fx:id="messagePanel">
         <TextField fx:id="messageField" onAction="#sendMessage" promptText="Введите сообщение..." HBox.hgrow="ALWAYS" />
         <Button fx:id="sendButton" onAction="#sendMessage" text="Отправить" />

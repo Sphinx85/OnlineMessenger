@@ -9,17 +9,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
     @FXML
-    TextArea textArea;
+    TextArea textArea, clientList;
 
     @FXML
     TextField messageField,
@@ -31,6 +27,8 @@ public class Controller implements Initializable {
 
     @FXML
     Button sendButton,
+            connectButtonTest,
+            authButtonTest,
             connectButton,
             registerButton,
             authButton;
@@ -57,6 +55,7 @@ public class Controller implements Initializable {
         connectionPanel.setManaged(!connected);
         authPanel.setVisible(false);
         authPanel.setManaged(false);
+        clientList.setVisible(false);
     }
 
     public void setAuthentificated(Boolean authentificated){
@@ -67,6 +66,7 @@ public class Controller implements Initializable {
         connectionPanel.setManaged(false);
         authPanel.setVisible(!authentificated);
         authPanel.setManaged(!authentificated);
+        clientList.setVisible(authentificated);
     }
 
     public void sendMessage() {
@@ -77,25 +77,41 @@ public class Controller implements Initializable {
     }
 
     public void connect(){
-        Network.connect(serverAddress.getText(), serverPort.getText());
+        textArea.appendText("Уточните у администратора адрес и порт сервера\n");
+        if (Network.connect(serverAddress.getText(), serverPort.getText())){
+            setAuthentificated(false);
+            serverAddress.clear();
+            serverPort.clear();
+            textArea.clear();
+        } else textArea.appendText("Не удалось подключиться к серверу \n");
+    }
+
+    /**
+     * Подключение для тестовой кнопки
+     */
+    public void locCon(){
+        Network.connect("localhost","8189");
         setAuthentificated(false);
-        serverAddress.clear();
-        serverPort.clear();
     }
 
     public void registration(){
-        Network.registration(nickNameField.getText(), loginField.getText(), passwordField.getText());
-        nickNameField.clear();
-        loginField.clear();
-        passwordField.clear();
-        nickNameField.requestFocus();
+        if (Network.registration(nickNameField.getText(), loginField.getText(), passwordField.getText())){
+            nickNameField.clear();
+            loginField.clear();
+            passwordField.clear();
+            authLoginField.requestFocus();
+        }
     }
 
     public void authorization(){
-        Network.authorization(authLoginField.getText(),authPasswordField.getText());
-        authLoginField.clear();
-        authPasswordField.clear();
-        messageField.requestFocus();
+        if (Network.authorization(authLoginField.getText(),authPasswordField.getText())){
+            authLoginField.clear();
+            authPasswordField.clear();
+            messageField.requestFocus();
+        }
+    }
+    public void authorizationTest(){
+        Network.authorization("admin","admin");
     }
 
     private void callbacksLinks(){

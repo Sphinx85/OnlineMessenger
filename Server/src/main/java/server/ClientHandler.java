@@ -16,6 +16,8 @@ public class ClientHandler {
         return nickName;
     }
 
+
+
     public ClientHandler(Server server, Socket socket) {
         try {
             this.server = server;
@@ -33,6 +35,7 @@ public class ClientHandler {
 
                             if (nick != null && !server.nickIsBusy(nick)){
                                 nickName = nick;
+                                outputStream.writeUTF("/authok");
                                 server.subscribe(this);
                                 server.consoleMessage("Клиент " + nickName + " авторизовался");
                                 break;
@@ -51,7 +54,6 @@ public class ClientHandler {
                                 }
                             }
                         }
-
                     }
 
                     while (true){

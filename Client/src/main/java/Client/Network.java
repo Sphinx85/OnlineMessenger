@@ -61,7 +61,7 @@ public class Network {
         }
     }
 
-    public static void connect(String address, String port) {
+    public static boolean connect(String address, String port) {
             try {
                 socket = new Socket(address, Integer.parseInt(port));
                 inputStream = new DataInputStream(socket.getInputStream());
@@ -79,8 +79,10 @@ public class Network {
                 });
                 thread.setDaemon(true);
                 thread.start();
+                return true;
             } catch (IOException e){
                 e.printStackTrace();
+                return false;
             }
     }
 
@@ -94,21 +96,27 @@ public class Network {
         }
     }
 
-    public static void registration(String nickName, String login, String password) {
+    public static boolean registration(String nickName, String login, String password) {
         try {
             outputStream.writeUTF("/register " + nickName + " " + login + " " + password);
             registrationCallback.callback();
+            return true;
         } catch (IOException e){
             e.printStackTrace();
+            return false;
         }
     }
 
-    public static void authorization(String login, String password) {
+    public static boolean authorization(String login, String password) {
         try {
             outputStream.writeUTF("/auth " + login + " " + password);
             authorizationCallback.callback();
+            return true;
+
         } catch (IOException e){
             e.printStackTrace();
+            return false;
         }
+
     }
 }
