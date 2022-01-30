@@ -12,6 +12,9 @@ public class Network {
     public static CallBack authorizationCallback;
     public static CallBack warningCallback;
     public static CallBack alertCallback;
+    public static CallBack clientListCall;
+
+
 
     static {
         CallBack empty = args -> {};
@@ -21,6 +24,10 @@ public class Network {
         authorizationCallback = empty;
         warningCallback = empty;
         alertCallback = empty;
+    }
+
+    public static void setClientListCall(CallBack clientListCall) {
+        Network.clientListCall = clientListCall;
     }
 
     public static void setRegistrationCallback(CallBack registrationCallback) {
@@ -71,7 +78,13 @@ public class Network {
                     try {
                         while (true){
                             String message = inputStream.readUTF();
-                            sendMessageCallback.callback(message);
+                            if (message.startsWith("Добро пожаловать!")){
+                                authorizationCallback.callback(true);
+                            }
+                            if (message.startsWith("/clientList ")){
+                                clientListCall.callback(message);
+
+                            } else sendMessageCallback.callback(message);
                         }
                     }catch (IOException e){
                         e.printStackTrace();
@@ -110,13 +123,10 @@ public class Network {
     public static boolean authorization(String login, String password) {
         try {
             outputStream.writeUTF("/auth " + login + " " + password);
-            authorizationCallback.callback();
             return true;
-
         } catch (IOException e){
             e.printStackTrace();
             return false;
         }
-
     }
 }

@@ -7,6 +7,7 @@ import java.net.Socket;
 
 public class ClientHandler {
     private String nickName;
+    private String loginName;
     private Server server;
     private Socket socket;
     private DataInputStream inputStream;
@@ -16,7 +17,9 @@ public class ClientHandler {
         return nickName;
     }
 
-
+    public String getLoginName() {
+        return loginName;
+    }
 
     public ClientHandler(Server server, Socket socket) {
         try {
@@ -32,10 +35,12 @@ public class ClientHandler {
                         if (message.startsWith("/auth ")){
                             String [] tokens = message.split("\\s");
                             String nick = server.getAuthService().getNickName(tokens[1],tokens[2]);
+                            String login = server.getAuthService().getLogin(tokens[1], tokens[2]);
 
-                            if (nick != null && !server.nickIsBusy(nick)){
+                            if (nick != null && !server.nickIsBusy(nick,login)){
                                 nickName = nick;
-                                outputStream.writeUTF("/authok");
+                                loginName = login;
+                                outputStream.writeUTF("Добро пожаловать!");
                                 server.subscribe(this);
                                 server.consoleMessage("Клиент " + nickName + " авторизовался");
                                 break;
@@ -43,7 +48,7 @@ public class ClientHandler {
                         }
                         if (message.startsWith("/register ")){
                             String [] tokens = message.split("\\s");
-                            if (!server.nickIsBusy(tokens[1])){
+                            if (!server.nickIsBusy(tokens[1],tokens[2])){
                                 server.getAuthService().registration(tokens[1], tokens[2],tokens[3]);
                                 server.consoleMessage("Новый клиент " + tokens[1] + " зарегистрировался");
                             } else {
@@ -58,12 +63,16 @@ public class ClientHandler {
 
                     while (true){
                         String message = inputStream.readUTF();
-                        if (message.equals("/end")){
-                            break;
-                        }
-                        server.broadcastMessage(nickName + ": " + message);
+                        if (message.startsWith("/")){
+                            if (message.equals("/end")){
+                                break;
+                            }
+                            if (message.startsWith("/wisp ")){
+                                String[] tokens = message.split("\\s", 3);
+                                server.privateMessage(this,tokens[1],tokens[2]);
+                            }
+                        } else server.broadcastMessage(nickName + ": " + message);
                     }
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {

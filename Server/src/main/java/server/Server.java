@@ -5,7 +5,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
 
-
 public class Server {
 
     public static Callback consoleMessage;
@@ -21,12 +20,9 @@ public class Server {
     private final Vector<ClientHandler> clients;
     private final AuthService authService;
 
-
-
     public AuthService getAuthService() {
         return authService;
     }
-
 
     public Server() {
         clients = new Vector<>();
@@ -49,6 +45,18 @@ public class Server {
 
     public void subscribe(ClientHandler clientHandler) {
         clients.add(clientHandler);
+        broadcastClientList();
+    }
+
+    public void broadcastClientList(){
+        StringBuilder list = new StringBuilder();
+        list.append("/clientList ");
+        for (ClientHandler client : clients){
+            list.append(client.getNickName()).append(" ");
+        }
+        list.setLength(list.length() - 1);
+        String clientList = list.toString();
+        broadcastMessage(clientList);
     }
 
     public void broadcastMessage(String message) {
@@ -57,17 +65,33 @@ public class Server {
         }
     }
 
+    public void privateMessage(ClientHandler sender, String received, String message){
+        if (sender.getNickName().equals(received)){
+            sender.sendMessage("Заметка: " + message);
+            return;
+        }
+        for (ClientHandler client: clients){
+            if (client.getNickName().equals(received)){
+                client.sendMessage("От " + sender.getNickName() + ": " + message);
+                sender.sendMessage("Для " + received + ": " + message);
+                return;
+            }
+        }
+        sender.sendMessage("Клиент " + received + " не найден!");
+    }
+
     public void unsubscribe(ClientHandler clientHandler) {
         clients.remove(clientHandler);
+        broadcastClientList();
     }
 
     public void consoleMessage(String message) {
         consoleMessage.callback(message);
     }
 
-    public boolean nickIsBusy(String nickName) {
+    public boolean nickIsBusy(String nickName, String login) {
         for (ClientHandler o : clients){
-            if (o.getNickName().equals(nickName)){
+            if (o.getNickName().equals(nickName) || o.getLoginName().equals(login)){
                 return true;
             }
         }

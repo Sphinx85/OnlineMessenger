@@ -29,8 +29,8 @@
         </HBox>
     </VBox>
     <HBox VBox.vgrow="ALWAYS">
-        <TextArea fx:id="textArea" editable="false" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS"/>
-        <TextArea fx:id="clientList" editable="false" VBox.vgrow="ALWAYS" maxWidth="200" minWidth="200"/>
+        <TextArea fx:id="textArea" editable="false" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" wrapText="true"/>
+        <ListView fx:id="clientList" editable="false" VBox.vgrow="ALWAYS" maxWidth="200" minWidth="200"/>
     </HBox>
     <HBox fx:id="messagePanel">
         <TextField fx:id="messageField" onAction="#sendMessage" promptText="Введите сообщение..." HBox.hgrow="ALWAYS" />

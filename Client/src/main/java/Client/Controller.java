@@ -2,10 +2,7 @@ package Client;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -15,7 +12,7 @@ import java.util.ResourceBundle;
 public class Controller implements Initializable {
 
     @FXML
-    TextArea textArea, clientList;
+    TextArea textArea;
 
     @FXML
     TextField messageField,
@@ -44,6 +41,9 @@ public class Controller implements Initializable {
     @FXML
     HBox messagePanel;
 
+    @FXML
+    ListView<String> clientList;
+
     private boolean connected;
     private boolean authentificated;
 
@@ -67,6 +67,7 @@ public class Controller implements Initializable {
         authPanel.setVisible(!authentificated);
         authPanel.setManaged(!authentificated);
         clientList.setVisible(authentificated);
+        textArea.clear();
     }
 
     public void sendMessage() {
@@ -108,14 +109,27 @@ public class Controller implements Initializable {
             authLoginField.clear();
             authPasswordField.clear();
             messageField.requestFocus();
-        }
+        } else setAuthentificated(false);
     }
     public void authorizationTest(){
         Network.authorization("admin","admin");
     }
 
     private void callbacksLinks(){
-        Network.setAuthorizationCallback(args -> setAuthentificated(true));
+        Network.setClientListCall(args -> {
+            clientList.getItems().clear();
+            String message = args[0].toString();
+            String[] tokens = message.split("\\s");
+            for (int i = 1; i < tokens.length; i++) {
+                clientList.getItems().add(tokens[i]);
+
+            }
+        });
+        Network.setAuthorizationCallback(args -> {
+            if (args[0].equals(true)) {
+                setAuthentificated(true);
+            } else setAuthentificated(false);
+        });
         Network.setConnectionCallback(args -> setConnected(true));
         Network.setSendMessageCallback(args -> {
             String message = args[0].toString();
@@ -126,6 +140,12 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setConnected(false);
+        clientList.setOnMouseClicked(event -> {
+            String nickName = clientList.getSelectionModel().getSelectedItem();
+            messageField.appendText("/wisp " + nickName + " ");
+            messageField.requestFocus();
+            messageField.selectEnd();
+        });
         callbacksLinks();
     }
 }

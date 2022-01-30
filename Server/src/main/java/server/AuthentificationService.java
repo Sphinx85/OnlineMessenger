@@ -29,4 +29,14 @@ public class AuthentificationService implements AuthService{
         users.add(new UserData(nickName,login,password));
 
     }
+
+    @Override
+    public String getLogin(String login, String password) {
+        for (UserData user : users){
+            if (user.getLogin().equals(login) && user.getPassword().equals(password)){
+                return user.getLogin();
+            }
+        }
+        return null;
+    }
 }
